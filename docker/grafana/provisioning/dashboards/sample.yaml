@@ -1,0 +1,21 @@
+apiVersion: 1
+
+providers:
+  - name: 'default'
+    orgId: 1
+    folder: ''
+    type: file
+    disableDeletion: false
+    editable: true
+    updateIntervalSeconds: 1  # Check for changes every 10 seconds
+    options:
+      path: /var/lib/grafana/dashboards
+
+#providers:
+# - name: 'default'
+#   orgId: 1
+#   folder: ''
+#   folderUid: ''
+#   type: file
+#   options:
+#     path: /var/lib/grafana/dashboards

@@ -1,0 +1,54 @@
+# Cassandra storage config YAML
+
+# The name of the cluster. This is mainly used to prevent machines in
+# one logical cluster from joining another.
+cluster_name: 'Test Cluster'
+
+# This defines the number of tokens randomly assigned to this node on the ring
+# The more tokens, relative to other nodes, the larger the proportion of data
+# that this node will store. You probably want all nodes to have the same number
+# of tokens assuming they have the same hardware profile
+num_tokens: 256
+
+# This defines the snitch implementation this node will use. It affects
+# the way Cassandra locates nodes and routes requests. SimpleSnitch is used
+# for development and testing; you should use a production snitch like GossipingPropertyFileSnitch for production
+endpoint_snitch: SimpleSnitch
+
+# The directory where Cassandra's data is stored.
+data_file_directories:
+    - /var/lib/cassandra/data
+
+# The directory where Cassandra's commitlog is stored.
+commitlog_directory: /var/lib/cassandra/commitlog
+
+# The directory where Cassandra's saved caches will be stored.
+saved_caches_directory: /var/lib/cassandra/saved_caches
+
+# The listen address for this Cassandra node.
+# listen_address: localhost
+
+# The native transport service listens for clients on this address.
+# If left unset, it defaults to the value of listen_address. It is
+# especially useful for nodes in a cluster to listen on the public IP
+# address, but bind the native transport service to localhost to
+# ensure that clients must access the node through a proxy rather than
+# directly.
+# native_transport_address: localhost
+
+# The port for CQL clients to connect.
+native_transport_port: 9042
+
+# Whether to start the native transport server.
+start_native_transport: true
+
+# The address or interface to bind the Thrift RPC service and native transport
+# server to. Set this to 0.0.0.0 to listen on all interfaces.
+# Leaving this blank leaves it up to InetAddress.getLocalHost(). This
+# will always do the Right Thing if the node is properly configured
+# (hostname, name resolution, etc), and the Right Thing is to use the
+# address associated with the hostname (it might not be).
+# rpc_address: localhost
+
+# Whether to start the thrift rpc server.
+start_rpc: false

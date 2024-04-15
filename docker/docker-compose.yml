@@ -1,0 +1,111 @@
+version: '3'
+
+services:
+  zookeeper:
+    container_name: zookeeper
+    image: deusnexus/zookeeper
+    networks:
+      - iotnet
+    ports:
+      - "2181:2181"  # Zookeeper client connections
+      - "7071:7071"  # JMX for Zookeeper
+
+  broker:
+    container_name: broker
+    image: deusnexus/broker
+    depends_on:
+      - zookeeper
+    networks:
+      - iotnet
+    ports:
+      - "9092:9092"  # Internal listener port
+      - "7072:7072"  # JMX for Broker
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      # KAFKA_ADVERTISED_LISTENERS: INTERNAL://broker:29092,EXTERNAL://localhost:9092
+      # KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      # KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092
+      # KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+  
+  broker-2:
+    container_name: broker-2
+    image: deusnexus/broker
+    depends_on:
+      - broker
+    networks:
+      - iotnet
+    ports:
+      - "9093:9092"  # Kafka broker
+      - "7073:7072"  # JMX for Broker
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      # KAFKA_ADVERTISED_LISTENERS: INTERNAL://broker:29093,EXTERNAL://localhost:9093
+      # KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      # KAFKA_LISTENERS: INTERNAL://0.0.0.0:29093,EXTERNAL://0.0.0.0:9093
+      # KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      
+  broker-3:
+    container_name: broker-3
+    image: deusnexus/broker
+    depends_on:
+      - broker-2
+    networks:
+      - iotnet
+    ports:
+      - "9094:9092"  # Kafka broker
+      - "7074:7072"  # JMX for Broker
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      # KAFKA_ADVERTISED_LISTENERS: INTERNAL://broker:29094,EXTERNAL://localhost:9094
+      # KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      # KAFKA_LISTENERS: INTERNAL://0.0.0.0:29094,EXTERNAL://0.0.0.0:9094
+      # KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
+  client:
+    container_name: client
+    image: deusnexus/client
+    depends_on:
+      - broker-3
+    networks:
+      - iotnet
+    environment:
+      KAFKA_BROKER_CONNECT: broker:9092
+
+  prometheus:
+    container_name: prometheus
+    image: deusnexus/prometheus
+    depends_on:
+      - client
+    networks:
+      - iotnet
+    ports:
+      - "9090:9090" # Map docker prometheus which collect metrics using internal ports and publishes to public port
+
+  spark-processing:
+    container_name: spark-processing
+    image: deusnexus/spark-processing
+    depends_on:
+      - broker-3
+    networks:
+      - iotnet
+    environment:
+      KAFKA_BROKER_CONNECT: broker:9092
+      CASSANDRA_HOST: 172.19.0.1:9042
+
+  # producer:
+  #   image: producer
+  #   depends_on:
+  #     - spark-processing
+  #   deploy:
+  #     replicas: 5
+  #   networks:
+  #     - iotnet
+
+networks:
+  iotnet:
+    external: true

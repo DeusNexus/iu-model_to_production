@@ -1,0 +1,11 @@
+.env
+/venv
+install
+install2
+sensor*
+zx*
+archive/
+__pycache__
+.drawio
+.drawio.bkp
+notes

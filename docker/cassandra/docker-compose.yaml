@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  cassandra:
+    container_name: cassandra
+    image: deusnexus/cassandra
+    networks:
+      - iotnet
+    ports:
+      - "9042:9042"
+      - "7000:7000"
+      - "7001:7001"
+      - "7199:7199"
+
+  cassandra-init:
+    container_name: cassandra-init
+    image: deusnexus/cassandra
+    depends_on:
+      - cassandra
+    volumes:
+      - ./create.sql:/create.sql
+    command: >
+      /bin/bash -c "
+        echo 'Waiting for Cassandra to start...';
+        while ! cqlsh cassandra -e 'describe cluster' > /dev/null 2>&1; do
+          echo 'Cassandra is not up yet... waiting...';
+          sleep 15;
+        done;
+        echo 'Cassandra is up and running. Initializing schema...';
+        cqlsh cassandra -f /create.sql;
+        echo 'Schema initialized.';
+        while ! cqlsh cassandra -e 'DESCRIBE TABLE iot_stations.spark_stream' > /dev/null 2>&1; do
+          echo 'spark_stream table not found... waiting...';
+          sleep 5;
+        done;
+        echo 'spark_stream table is ready. Starting polling...';
+        while true; do
+          echo 'Polling spark_stream table...';
+          cqlsh cassandra -e 'SELECT * FROM iot_stations.spark_stream LIMIT 10;';
+          echo 'Waiting 5 seconds before next poll...';
+          sleep 5;
+        done"
+    networks:
+      - iotnet
+
+networks:
+  iotnet:
+    external: true

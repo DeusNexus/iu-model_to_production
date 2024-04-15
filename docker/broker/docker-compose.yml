@@ -1,0 +1,20 @@
+version: '3'
+services:
+  broker:
+    image: deusnexus/broker  # Your custom image
+    ports:
+      - "9092:9092"
+      - "5555:5555"  # JMX Exporter port for broker-1
+    networks:
+      - iotnet
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 5555  # Ensure this matches the exposed JMX port
+      JMX_PORT: 5555  # Match with KAFKA_JMX_PORT
+    
+networks:
+  iotnet:
+    external: true
