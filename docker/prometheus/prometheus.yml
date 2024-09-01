@@ -21,9 +21,32 @@ rule_files:
 scrape_configs:
   # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
   - job_name: "kafka"
-
     # metrics_path defaults to '/metrics'
     # scheme defaults to 'http'.
-
     static_configs:
-      - targets: ["zookeeper:7071","broker:7072","broker-2:7072","broker-3:7072","broker-4:7072","broker-5:7072"] # Allow up to 5 brokers for now
+      - targets: ["zookeeper:7071","broker:7072","broker-2:7072","broker-3:7072"]
+      # - targets: ["zookeeper:7071","broker:7072","broker-2:7072","broker-3:7072","broker-4:7072","broker-5:7072"] # Allow up to 5 brokers for now
+  
+  # Job scraping for Spark Streaming
+  - job_name: "spark-applications"
+    metrics_path: "/metrics/prometheus"
+    static_configs:
+      - targets: ["spark-processing:4040"]
+
+  # Job scraping Spark Master metrics
+  - job_name: "spark-master"
+    metrics_path: "/metrics/master/prometheus"
+    static_configs:
+      - targets: ["spark-processing:4040"]
+
+  # Job scraping Spark Executor metrics
+  - job_name: "spark-executors"
+    metrics_path: "/metrics/prometheus"
+    static_configs:
+      - targets: ["spark-processing:4040"]
+
+  # Job scraping Cassandra Metrics
+  - job_name: "cassandra"
+    static_configs:
+    # Here the DNS name cassandra from iot-net is used! However if cassandra exists outside of iot net, the full target address needs to be specificied (e.g. IP)
+      - targets: ["cassandra:7200"]

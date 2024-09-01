@@ -4,13 +4,14 @@ services:
   cassandra:
     container_name: cassandra
     image: deusnexus/cassandra
+    ports:
+      # - "5555:5555" # JMX Exporter port
+      - "9042:9042"
+      # - "7000:7000"
+      # - "7001:7001"
+      - "7200:7200"
     networks:
       - iotnet
-    ports:
-      - "9042:9042"
-      - "7000:7000"
-      - "7001:7001"
-      - "7199:7199"
 
   cassandra-init:
     container_name: cassandra-init
@@ -40,9 +41,11 @@ services:
           echo 'Waiting 5 seconds before next poll...';
           sleep 5;
         done"
+    ports:
+      - "9043:9042"
+      - "7201:7200"
     networks:
       - iotnet
-
 networks:
   iotnet:
     external: true

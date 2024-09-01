@@ -4,7 +4,7 @@ services:
   iot_station:
     image: deusnexus/producer
     deploy:
-      replicas: 250
+      replicas: 400
     networks:
       - iotnet
 

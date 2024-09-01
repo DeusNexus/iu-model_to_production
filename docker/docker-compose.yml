@@ -93,6 +93,8 @@ services:
       - broker-3
     networks:
       - iotnet
+    ports:
+      - "4040:4040"  # Prometheus Spark Processing
     environment:
       KAFKA_BROKER_CONNECT: broker:9092
       CASSANDRA_HOST: 172.19.0.1:9042

@@ -1,0 +1,12 @@
+# # Rules for Prometheus / JMX 
+# rules:
+#   - pattern: ".*"
+#     name: cassandra_$1
+#     type: GAUGE
+
+lowercaseOutputName: true
+lowercaseOutputLabelNames: true
+rules:
+  - pattern: 'org.apache.cassandra.metrics<type=(\w+), name=(\w+)><>Value'
+    name: "cassandra_$1_$2"
+    type: GAUGE

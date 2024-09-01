@@ -1,6 +1,5 @@
 # Building
-cd docker/grafana
-sudo docker build -t grafana .
+No need to build since we're pulling external image and include the files inside the folder as volumes.
 
 ## Run manual grafana
 sudo docker run -itd --name grafana --network host grafana
