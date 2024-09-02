@@ -4,6 +4,8 @@ services:
   grafana:
     container_name: grafana
     image: grafana/grafana
+    environment:
+      - GF_LOG_LEVEL=error
     volumes:
       - ./defaults.ini:/etc/grafana/grafana.ini
       - ./provisioning:/etc/grafana/provisioning

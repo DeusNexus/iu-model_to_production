@@ -1,8 +1,8 @@
 # Define the Kafka version as a build-time argument
-ARG KAFKA_VERSION=3.7.0
+ARG KAFKA_VERSION=3.7.1
 
 # Stage 1: Build stage
-FROM ubuntu:22.04 as builder
+FROM ubuntu:22.04 AS builder
 
 # Set environment variables to avoid prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
