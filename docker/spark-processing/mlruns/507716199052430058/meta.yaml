@@ -1,0 +1,6 @@
+artifact_location: file:///mlruns/507716199052430058
+creation_time: 1725286047645
+experiment_id: '507716199052430058'
+last_update_time: 1725286047645
+lifecycle_stage: active
+name: Isolation Forest Anomaly Detection

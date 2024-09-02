@@ -33,13 +33,27 @@ ENV PATH=$PATH:$SPARK_HOME/bin:${SPARK_HOME}/sbin
 
 # Install procps, Python, pip, and wget
 RUN apt-get update && \
-    apt-get install -y procps python3 python3-pip wget && \
+    apt-get install -y procps python3.10 python3-venv python3-dev python3-pip wget && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+# Install specific versions of Python packages
+RUN pip install --upgrade pip && \
+    pip install \
+    mlflow==2.16.0 \
+    cloudpickle==3.0.0 \
+    psutil==5.9.5 \
+    scipy==1.13.0 \
+    joblib==1.4.2 \
+    pandas==2.2.2 \
+    numpy==1.26.2 \
+    scikit-learn==1.4.2 \
+    matplotlib==3.9.0
 
 RUN mkdir -p /usr/local/spark/script
 # Copy the outlier script into the container
 COPY outlier_detection.py /usr/local/spark/script/outlier_detection.py
+COPY mlruns /mlruns
 COPY log4j2.properties /usr/local/spark/conf/log4j2.properties
 COPY metrics.properties /usr/local/spark/conf/metrics.properties
 

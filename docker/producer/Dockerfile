@@ -1,5 +1,5 @@
 # Build stage for compiling and installing dependencies
-FROM python:3.8-slim as builder
+FROM python:3.8-slim AS builder
 
 # Set the working directory in the builder stage
 WORKDIR /build

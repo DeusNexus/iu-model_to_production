@@ -30,15 +30,9 @@ class Station:
     def __init__(self,station_id='default_id'):
         self.station_id = station_id
         self.sensors = [
-            Sensor(mean=25,std_dev=2,name='temperature',keep_readings=300,recalibration_rate=0.2),
             Sensor(mean=60,std_dev=3,name='humidity',keep_readings=300,recalibration_rate=0.2),
-            Sensor(mean=1013,std_dev=2,name='pressure',keep_readings=300,recalibration_rate=0.2),
-            Sensor(mean=200,std_dev=20,name='air_quality',keep_readings=300,recalibration_rate=0.2),
-            Sensor(mean=30,std_dev=2,name='particulate_matter',keep_readings=300,recalibration_rate=0.2),
             Sensor(mean=50,std_dev=3,name='noise_level',keep_readings=300,recalibration_rate=0.2),
-            Sensor(mean=500,std_dev=50,name='illuminance',keep_readings=300,recalibration_rate=0.2),
-            Sensor(mean=5,std_dev=20,name='wind_speed',keep_readings=300,recalibration_rate=0.2),
-            Sensor(mean=0,std_dev=3,name='rainfall',keep_readings=300,recalibration_rate=0.2),
+            Sensor(mean=25,std_dev=2,name='temperature',keep_readings=300,recalibration_rate=0.2),
         ]
 
     def generate_station_readings(self):

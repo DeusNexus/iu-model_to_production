@@ -20,6 +20,7 @@ services:
       - cassandra
     volumes:
       - ./create.sql:/create.sql
+      # - ./db_backup.csv:db_backup.csv
     command: >
       /bin/bash -c "
         echo 'Waiting for Cassandra to start...';
@@ -28,13 +29,20 @@ services:
           sleep 15;
         done;
         echo 'Cassandra is up and running. Initializing schema...';
+        
         cqlsh cassandra -f /create.sql;
         echo 'Schema initialized.';
+        
         while ! cqlsh cassandra -e 'DESCRIBE TABLE iot_stations.spark_stream' > /dev/null 2>&1; do
           echo 'spark_stream table not found... waiting...';
           sleep 5;
         done;
         echo 'spark_stream table is ready. Starting polling...';
+
+        # Bulk insert using COPY command
+        cqlsh cassandra -e \"COPY iot_stations.spark_stream FROM '/db_backup.csv' WITH HEADER = TRUE;\";
+        echo 'Bulk insert from CSV completed.';
+
         while true; do
           echo 'Polling spark_stream table...';
           cqlsh cassandra -e 'SELECT * FROM iot_stations.spark_stream LIMIT 10;';

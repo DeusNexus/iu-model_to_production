@@ -1,0 +1,1 @@
+Normal Datapoints (99.87%): 83779 - Outliers (0.13%): 105

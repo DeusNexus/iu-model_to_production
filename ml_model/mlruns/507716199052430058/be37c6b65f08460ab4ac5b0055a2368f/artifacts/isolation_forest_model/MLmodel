@@ -1,0 +1,20 @@
+artifact_path: isolation_forest_model
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.10.14
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.4.2
+mlflow_version: 2.16.0
+model_size_bytes: 12228896
+model_uuid: 63bac3bf2caa4e5d80a20a01bbb8b640
+run_id: be37c6b65f08460ab4ac5b0055a2368f
+utc_time_created: '2024-09-02 14:07:32.524161'
