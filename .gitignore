@@ -9,5 +9,4 @@ __pycache__
 .drawio
 .drawio.bkp
 notes
-/docker/api/venv
-*venv*
+docker/api/venv
