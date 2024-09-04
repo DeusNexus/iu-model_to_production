@@ -1,0 +1,15 @@
+artifact_uri: file:///home/fox/Desktop/Project%20Model%20to%20Production/iu-model_to_production_anomaly_iot/ml_model/mlruns/0/be37c6b65f08460ab4ac5b0055a2368f/artifacts
+end_time: 1725286061973
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: be37c6b65f08460ab4ac5b0055a2368f
+run_name: Isolation Forest Run
+run_uuid: be37c6b65f08460ab4ac5b0055a2368f
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1725286047751
+status: 3
+tags: []
+user_id: fox

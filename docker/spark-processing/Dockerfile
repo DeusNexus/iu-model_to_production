@@ -51,11 +51,18 @@ RUN pip install --upgrade pip && \
     matplotlib==3.9.0
 
 RUN mkdir -p /usr/local/spark/script
-# Copy the outlier script into the container
-COPY outlier_detection.py /usr/local/spark/script/outlier_detection.py
-COPY mlruns /mlruns
-COPY log4j2.properties /usr/local/spark/conf/log4j2.properties
-COPY metrics.properties /usr/local/spark/conf/metrics.properties
+
+####################################
+######## BUILD INSTRUCTIONS ########
+####################################
+# 1. cd iu-model_to_production_anomaly_iot/docker
+# 2. docker build -t deusnexus/spark-processing -f ./spark-processing/Dockerfile .
+#
+# Copy the outlier script and other necessary files into the container
+COPY spark-processing/outlier_detection.py /usr/local/spark/script/outlier_detection.py
+COPY spark-processing/log4j2.properties /usr/local/spark/conf/log4j2.properties
+COPY spark-processing/metrics.properties /usr/local/spark/conf/metrics.properties
+COPY spark-processing/mlruns /mlruns
 
 # Expose Prometheus metrics port
 EXPOSE 4040

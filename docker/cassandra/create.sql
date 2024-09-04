@@ -11,5 +11,6 @@ CREATE TABLE IF NOT EXISTS iot_stations.spark_stream (
     noise_level double,
     temperature double,
     is_outlier boolean,
+    mlflow_id text,
     PRIMARY KEY (station_id, record_time)
 ) WITH CLUSTERING ORDER BY (record_time DESC);
