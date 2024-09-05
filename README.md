@@ -5,45 +5,115 @@
 ## Problem Statement
 In modern manufacturing environments, especially those involving high-precision components such as wind turbines, the integrity and functionality of the production process are paramount. Unexpected malfunctions or deviations in machine behavior can lead to significant financial losses and safety risks. Currently, the factory utilizes a network of sensors to monitor various aspects of the production cycle. However, there is a critical gap in the system: the ability to automatically detect and respond to anomalies in real-time. The challenge lies in implementing a robust anomaly detection system that can process continuous sensor data and alert the factory management about potential issues before they escalate into more significant problems.
 
-# Approach
-1.1 Task 1: Anomaly Detection in an IoT Setting (Spotlight: Stream Processing)
-Conceptual Architecture Design:
-The system architecture is designed to handle high-throughput, real-time data streams using Apache Kafka for data ingestion. The data is then processed in real-time through Spark Streaming, which allows for efficient anomaly detection by applying the machine learning model to incoming sensor data streams. Processed data, including anomaly scores, are stored in Apache Cassandra, providing robust and scalable storage solutions for fast reads and writes. A visual representation of this architecture will be developed to illustrate the data flow and component interaction, which aids in the clear understanding and further development of the system.
+## Approach
 
-## Choosing a Data Source:
-Given the need for realistic data simulation:
+Our solution leverages a combination of cutting-edge technologies:
 
-Sensor data is generated using sample distributions with specified mean and standard deviation values.
-To simulate natural fluctuations observed in real-world scenarios, the data generation includes a random walk based on the past n points, ensuring some variability in the sensor outputs.
-A recalibration rate is implemented to ensure that long-term data readings remain aligned with the initial distribution parameters.
-This approach allows for a controlled yet realistic testing environment for the anomaly detection model.
-Building the Anomaly Detection Model:
-A Python-based anomaly detection model will be developed, utilizing IsolationForest(n_estimators=1000, contamination=0.00125, random_state=42) and determine if the new datapoints is an outlier or not. The model will focus on features identified as crucial by shop floor employees, such as temperature, humidity, and sound volume. While simplicity is key, the model will be robust enough to demonstrate effective anomaly detection in a streamed data environment.
+- Apache Kafka for high-throughput, real-time data ingestion
 
-## API Integration and Model Packaging:
-The anomaly detection system will be accessible via a RESTful API, which will receive sensor data from Kafka and return anomaly detection results. The integration with Spark Streaming ensures that the data processing is seamless and efficient. The use of Flask or mlflow for developing the API will facilitate easy integration and interaction with the Kafka and Cassandra components.
+- Apache Spark Streaming for efficient, scalable data processing
 
-## Non-Cloud System Implementation:
-The system is initially implemented on a local setup to avoid the complexities of cloud deployment. However, the design is inherently scalable and can be migrated to a cloud environment to enhance its capabilities, based on future needs or for academic demonstration purposes.
+- Apache Cassandra for robust, scalable data storage
 
-## Preparation for Final Presentation:
-The presentation will cover:
+- MLflow for model versioning and tracking
 
-- Technical challenges encountered while integrating streaming data with the predictive model.
-- Design considerations for handling high-throughput real-time data.
-- Adjustments made to simulate realistic sensor data and their impact on model performance.
-- Monitoring strategies for ensuring the system’s reliability and performance in a real-world factory setting.
-- Comprehensive system design showcasing the integration of Kafka, Spark Streaming, and Cassandra.
-- A link to the GitHub repository will be provided, allowing the audience to access the complete codebase, which includes detailed documentation on the system setup, configuration, and operation.
-
-This refined section will help to clearly communicate the technical depth of your project and the innovative approaches you have employed in developing the anomaly detection system.
+- Flask for RESTful API implementation
 
 
-# Development Planning - UML Schemas
-## UML Diagram
-Docker Architecture Diagram
-![Design of ](/images/uml.jpg)
+This stack ensures seamless integration, high volume processing, low latency, and high redundancy, making it suitable for enterprise-level production environments.
 
+
+## Architecture
+
+![Architecture Diagram](/images/uml.jpg)
+
+
+The system architecture includes:
+
+- IoT sensors (simulated) publishing data to Kafka topics
+
+- Kafka brokers for message queuing
+
+- Spark Streaming for real-time data processing and anomaly detection
+
+- Cassandra for storing processed data
+
+- MLflow for model management
+
+- Flask API for system interaction and model serving
+
+- Prometheus and Grafana for system monitoring
+
+
+## System Components
+
+### Cassandra
+- Primary database for the architecture
+- Must be running before all other services start
+- Stores rows processed by Spark Streaming, including sensor readings, outlier detection results, and MLflow IDs
+- Accessible via CSQL on port 9042
+- Integrates with jmx_prometheus_javaagent for Prometheus scraping and Grafana visualization
+
+### Kafka Broker
+- Part of the Apache Kafka ecosystem
+- Maintains topics and manages broker followers
+- One leader broker (port 9092) and two follower brokers (ports 9093 & 9094)
+- Facilitates horizontal scaling and redundancy
+- Integrates with jmx_prometheus_javaagent for monitoring
+
+### Zookeeper
+- Orchestrator for the Apache Kafka ecosystem
+- Manages overall health of Kafka
+- Provides broker IDs to Spark Streaming for topic access
+- Client connections available on port 2181
+- Integrates with jmx_prometheus_javaagent for monitoring
+
+### Kafka Client
+- Temporary container that creates a Kafka topic
+- Runs after all brokers are initialized
+- Terminates after topic creation
+
+### Producer (IoT Station)
+- Simulates factory IoT stations or sensors
+- Generates and publishes messages to Kafka brokers
+- Produces approximately one message per second per producer
+- Uses probability distribution with minor random walk for realistic data generation
+- Default setup: 25 replicas (approx. 25 messages/second)
+
+### Prometheus
+- Scrapes JMX metrics from brokers, Zookeeper, Spark Streaming, and Cassandra
+- Facilitates collection of logs for Grafana visualization
+- Accessible at http://localhost:9090/targets for service status monitoring
+
+### Spark Processing
+- Core component of the architecture
+- Fetches messages from Kafka topics in real-time
+- Uses Pandas UDF and applies MLflow model for outlier detection
+- Writes results to Apache Cassandra
+- Utilizes JMX (port 4040) for Prometheus metric scraping
+
+### Grafana Dashboard
+- Provides comprehensive monitoring of architecture components
+- Accessible at http://localhost:3001/ after container start
+- Visualizes metrics from Prometheus for all services
+
+### Flask API
+- Unifies access to all system components
+- Provides RESTful endpoints for interacting with the system
+- Handles model loading, prediction, and drift detection
+- Facilitates easy integration with external systems and user interfaces
+
+This architecture ensures a robust, scalable, and monitored system for real-time anomaly detection in an IoT setting. Each component plays a crucial role in data ingestion, processing, storage, and analysis, working together to provide timely insights and alerts.
+
+
+## Installation and Setup
+
+
+### Prerequisites
+
+- Docker and Docker Compose
+
+- Python 3.7+
 
 ## Building Docker Images
 
@@ -91,80 +161,228 @@ Docker Architecture Diagram
 
 ## Running the containers
 This requires multiple terminals.
+
 ### Create a new docker network
     - `docker networks create iotnet`
+
 ### Terminal 1 - Apache Cassandra (always make sure this is running first!):
     - 1. `cd docker/cassandra`
     - 2. `docker compose up`
+
 ### Terminal 2 - Broker(s), Zookeeper, Client (temp), Prometheus, Spark-Processing
     - 1. `cd docker`
     - 2. `docker compose up`
+
 ### Terminal 3 - Producer(s), these emulate the sensor readings (change the replicas in docker-compose.yaml to your liking - default: 25)
     - 1. `cd docker/producer`
     - 2. `docker compose up`
+
 ### Terminal 4 - Grafana (Dashboard that can be opened and connects to scraped JMX from Prometheus - Collects from Broker(s), Zookeeper, Spark and Cassandra)
     - 1. `cd docker/grafana`
     - 2. `docker compose up`
     - 3. `Open http://localhost:3001/`
+
 ### Terminal 5 - API (Not containerized)
     - 1. `cd docker/api`
     - 2. `source venv/bin/activate` - Make sure virtual env is used with required installed modules.
     - 3. `python app.py`
     - 4. `Open http://localhost:5000/`
+
 #### Note: Here you can access the following endpoints
 - GET /api/latest_anomalies - Fetch the latest predictions (returns latest 10 where is_outlier = True)
 - GET /api/check_drift_retrain - Will check for model drift and retrain model, will automatically switch to new model for /api/predict including model_id, Spark-Processing needs to build new image and will automatically use the new one generated by the api.
 - GET /api/outliers_count?time_range=1h - You can use m,h,d for example 5m, 4h, 30d.
-- POST /api/predict - Using for example { "humidity": 5.20311500477099, "noise_level": 17.48891168612748, "temperature": 22.86046518733127 }
+- POST /api/predict - Example Request Message and Response
+
+```json
+Example Message: { "humidity": 5.20311500477099, "noise_level": 17.48891168612748, "temperature": 22.86046518733127 }
+```
+
+```json
+Example Response: {
+    "features": {
+        "humidity": 5.20311500477099,
+        "noise_level": 17.48891168612748,
+        "temperature": 22.86046518733127
+    },
+    "is_anomaly": true,
+    "model_version": "90e6bef02af84f3186e0e068e9fa4e4d"
+}
+```
+
+## API Endpoints
 
 
-**Docker Deployment with docker-compose (~28mb GIF):**
-<!-- ![Docker Deployment with docker-compose (~28mb)](/images/docker_compose.gif) -->
+The Flask API provides the following endpoints:
+
+
+1. GET /api/latest_anomalies
+
+   - Fetches the latest detected anomalies
+
+   - Example response:
+
+     ```json
+
+     [
+
+       {
+
+         "station_id": "station_123",
+
+         "record_time": "2023-05-20T14:30:00",
+
+         "humidity": 70.5,
+
+         "noise_level": 65.2,
+
+         "temperature": 30.1,
+
+         "is_outlier": true,
+
+         "mlflow_id": "90e6bef02af84f3186e0e068e9fa4e4d"
+
+       }
+
+     ]
+
+     ```
+
+
+2. GET /api/check_drift_retrain
+
+   - Checks for model drift and retrains if necessary
+
+   - Example response:
+
+     ```json
+
+     {
+
+       "msg": "Model drift detected. Retraining completed. New model ID: 91f7cef13bf95g4297f1f179f0gb5f5e"
+
+     }
+
+     ```
+
+
+3. GET /api/outliers_count?time_range=1h
+
+   - Returns the count of outliers in a specified time range
+
+   - Example response:
+
+     ```json
+
+     {
+
+       "time_range": "1h",
+
+       "outliers_count": 15
+
+     }
+
+     ```
+
+
+4. POST /api/predict
+
+   - Makes a new prediction based on input data
+
+   - Example request:
+
+     ```json
+
+     {
+
+       "humidity": 65.2,
+
+       "noise_level": 55.7,
+
+       "temperature": 28.3
+
+     }
+
+     ```
+
+   - Example response:
+
+     ```json
+
+     {
+
+       "is_anomaly": true,
+
+       "features": {
+
+         "humidity": 65.2,
+
+         "noise_level": 55.7,
+
+         "temperature": 28.3
+
+       },
+
+       "model_version": "90e6bef02af84f3186e0e068e9fa4e4d"
+
+     }
+
+     ```
+
 
 ## Sensor Data Overview
-...
+
+The system simulates three types of sensors: humidity, noise level, and temperature. Data is generated using probability distributions with minor random walks, correcting towards the mean to maintain realistic patterns.
+
 
 ## Outlier Detection Model
-..
 
-## MLFlow (http://127.0.0.1:5000/#/experiments/)
-..
+The system uses an Isolation Forest model with 1000 estimators and a contamination factor of 0.00125. The model is periodically checked for drift and retrained as necessary to maintain accuracy.
 
-## Apache Kafka
-...
 
-# Apache Spark Streaming
-...
+## MLflow Integration
 
-## Apache Cassandra
-...
+MLflow is primarily used for model versioning and artifact tracking. It maintains a record of model versions, training artifacts, and facilitates easy switching between model versions for predictions.
 
-# Docker Deploy Kafka without docker-compose (individually)
-...
 
-## Dashboards Metrics
-...
+## Monitoring and Metrics
+
+The system uses Prometheus for metrics collection and Grafana for visualization. Key metrics monitored include:
+
+- Kafka: Messages per second, consumer requests, latency, disk usage
+
+- Zookeeper: Disconnects per second, request latency
+
+- Spark: Memory usage, executor metrics, GC time
+
+- Cassandra: Memtable metrics, connections, reads/writes
+
+
 ## Evaluation
-..
+
+The system's success is evaluated based on its ability to:
+
+1. Detect anomalies in real-time with high accuracy
+
+2. Handle increasing data loads through scalable architecture
+
+3. Maintain low latency in data processing and anomaly detection
+
+4. Provide easy access to insights through the API
+
+5. Facilitate model updates and version control
+
 
 ## Reflection
-..
 
-# How to get started
-## Installation instructions
-1. Download the Git repo using `git clone https://github.com/DeusNexus/iu-model_to_production`
-2. Open folder using `cd iu-model_to_production`
-3. Install docker and docker-compose to your the local filesystem.
-4. Follow the steps from begin of README.md at the top ('Running the containers')
+The project presented challenges, particularly in JMX integration. However, it provided valuable insights into creating a scalable production architecture with a focus on version tracking, monitoring, and easy deployment through containerization.
 
-# Reflection
-- What I learned ...
-- What challenges occured ...
-- What recommendations are suggested ...
-- What could be improved ...
 
-# Conclusion
-Did we achieve the goal etc and how?
+## Conclusion
 
-# Disclaimer
-The developed application is licensed under the GNU General Public License.
+The project successfully implemented a highly scalable anomaly detection system for IoT sensor data. It meets the initial goals of real-time processing, easy model updates, and comprehensive monitoring. Future directions could include further optimization of the model drift detection process and expansion to handle more diverse sensor types.
+
+
+## License
+
+This project is licensed under the GNU General Public License.
