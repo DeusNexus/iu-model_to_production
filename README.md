@@ -194,21 +194,23 @@ This requires multiple terminals.
 - GET /api/outliers_count?time_range=1h - You can use m,h,d for example 5m, 4h, 30d.
 - POST /api/predict - Example Request Message and Response
 
-```json
-Example Message: { "humidity": 5.20311500477099, "noise_level": 17.48891168612748, "temperature": 22.86046518733127 }
-```
+  - Example Message: 
+  ```json
+  { "humidity": 5.20311500477099, "noise_level": 17.48891168612748, "temperature": 22.86046518733127 }
+  ```
 
-```json
-Example Response: {
-    "features": {
-        "humidity": 5.20311500477099,
-        "noise_level": 17.48891168612748,
-        "temperature": 22.86046518733127
-    },
-    "is_anomaly": true,
-    "model_version": "90e6bef02af84f3186e0e068e9fa4e4d"
-}
-```
+  - Example Response:
+  ```json
+  {
+      "features": {
+          "humidity": 5.20311500477099,
+          "noise_level": 17.48891168612748,
+          "temperature": 22.86046518733127
+      },
+      "is_anomaly": true,
+      "model_version": "90e6bef02af84f3186e0e068e9fa4e4d"
+  }
+  ```
 
 ## API Endpoints
 
