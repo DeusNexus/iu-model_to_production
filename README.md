@@ -225,29 +225,17 @@ The Flask API provides the following endpoints:
    - Example response:
 
      ```json
-
      [
-
        {
-
          "station_id": "station_123",
-
          "record_time": "2023-05-20T14:30:00",
-
          "humidity": 70.5,
-
          "noise_level": 65.2,
-
          "temperature": 30.1,
-
          "is_outlier": true,
-
          "mlflow_id": "90e6bef02af84f3186e0e068e9fa4e4d"
-
        }
-
      ]
-
      ```
 
 
@@ -275,15 +263,10 @@ The Flask API provides the following endpoints:
    - Example response:
 
      ```json
-
      {
-
        "time_range": "1h",
-
        "outliers_count": 15
-
      }
-
      ```
 
 
@@ -294,41 +277,25 @@ The Flask API provides the following endpoints:
    - Example request:
 
      ```json
-
      {
-
        "humidity": 65.2,
-
        "noise_level": 55.7,
-
        "temperature": 28.3
-
      }
-
      ```
 
    - Example response:
 
      ```json
-
      {
-
        "is_anomaly": true,
-
        "features": {
-
          "humidity": 65.2,
-
          "noise_level": 55.7,
-
          "temperature": 28.3
-
        },
-
        "model_version": "90e6bef02af84f3186e0e068e9fa4e4d"
-
      }
-
      ```
 
 
